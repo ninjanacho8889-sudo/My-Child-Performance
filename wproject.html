@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Child Performance Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f9;
+      color: #333;
+    }
+    header {
+      background: #4a90e2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #357ab8;
+    }
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .scale {
+      margin-top: 20px;
+      height: 30px;
+      background: linear-gradient(to right, red 0%, yellow 50%, green 100%);
+      border-radius: 15px;
+      position: relative;
+    }
+    .indicator {
+      position: absolute;
+      top: -10px;
+      width: 2px;
+      height: 50px;
+      background: black;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Child Performance Analyzer</h1>
+    <p>Evaluate your child's daily habits and see where they stand!</p>
+  </header>
+  <main>
+    <form id="childForm">
+      <label for="name">Child's Name:</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="studyHours">Study Hours (per day):</label>
+      <input type="number" id="studyHours" name="studyHours" min="0" max="24" required>
+
+      <label for="readingHours">Reading Hours (per day):</label>
+      <input type="number" id="readingHours" name="readingHours" min="0" max="24" required>
+
+      <label for="playHours">Play Outside Hours (per day):</label>
+      <input type="number" id="playHours" name="playHours" min="0" max="24" required>
+
+      <label for="gamesPlayed">Games Played (per day):</label>
+      <input type="number" id="gamesPlayed" name="gamesPlayed" min="0" required>
+
+      <label for="diet">Usual Diet:</label>
+      <select id="diet" name="diet" required>
+        <option value="healthy">Healthy (fruits, veggies, balanced meals)</option>
+        <option value="average">Average (mixed, some junk food)</option>
+        <option value="poor">Poor (mostly junk food)</option>
+      </select>
+
+      <label for="sleepHours">Sleep Hours (per day):</label>
+      <input type="number" id="sleepHours" name="sleepHours" min="0" max="24" required>
+
+      <label for="chores">Chores Done (per day):</label>
+      <input type="number" id="chores" name="chores" min="0" required>
+
+      <label for="creativeHours">Creative Activities (drawing, music, etc.):</label>
+      <input type="number" id="creativeHours" name="creativeHours" min="0" max="24" required>
+
+      <button type="submit">Analyze Performance</button>
+    </form>
+
+    <div class="result" id="result" style="display:none;">
+      <h2>Performance Result</h2>
+      <p id="scoreText"></p>
+      <div class="scale">
+        <div class="indicator" id="indicator"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById("childForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      let study = parseFloat(document.getElementById("studyHours").value);
+      let reading = parseFloat(document.getElementById("readingHours").value);
+      let play = parseFloat(document.getElementById("playHours").value);
+      let games = parseFloat(document.getElementById("gamesPlayed").value);
+      let diet = document.getElementById("diet").value;
+      let sleep = parseFloat(document.getElementById("sleepHours").value);
+      let chores = parseFloat(document.getElementById("chores").value);
+      let creative = parseFloat(document.getElementById("creativeHours").value);
+
+      // Scoring system
+      let score = 0;
+
+      score += study * 5;       // Study is weighted heavily
+      score += reading * 4;     // Reading is important
+      score += play * 3;        // Outdoor play is good
+      score += creative * 4;    // Creativity is valuable
+      score += chores * 2;      // Responsibility adds points
+      score += sleep * 3;       // Sleep is essential
+
+      // Diet adjustment
+      if (diet === "healthy") score += 20;
+      else if (diet === "average") score += 10;
+      else score -= 10;
+
+      // Games adjustment
+      if (games > 3) score -= (games - 3) * 5; // Too many games reduces score
+      else score += games * 2; // Moderate gaming adds small benefit
+
+      // Normalize score to percentage
+      let percentage = Math.min(100, Math.max(0, score));
+
+      let resultText = "";
+      if (percentage < 50) {
+        resultText = "Behind (" + percentage.toFixed(1) + "%)";
+      } else if (percentage < 80) {
+        resultText = "Average (" + percentage.toFixed(1) + "%)";
+      } else {
+        resultText = "Extremely Good (" + percentage.toFixed(1) + "%)";
+      }
+
+      document.getElementById("scoreText").innerText = resultText;
+      document.getElementById("result").style.display = "block";
+
+      // Move indicator
+      let scaleWidth = document.querySelector(".scale").offsetWidth;
+      let indicator = document.getElementById("indicator");
+      indicator.style.left = (percentage / 100 * scaleWidth) + "px";
+    });
+  </script>
+</body>
+</html>
